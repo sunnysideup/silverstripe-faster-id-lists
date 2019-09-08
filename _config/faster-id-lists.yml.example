@@ -1,0 +1,6 @@
+---
+Name: FasterIDLists
+---
+
+Sunnysideup\FasterIdLists\FasterIDLists:
+  acceptable_max_number_of_select_statements: 500
