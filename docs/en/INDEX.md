@@ -11,8 +11,10 @@ Injector::inst()->create(
 )->filteredDatalist();
 ```
 //or
-//use statements here ..
+
 ```php
+//use statements here ..
+
 $idList = [1,2,3,4,5,6,11,12,13,17]l
 Injector::inst()->create(
     FasterIDLists::class,
