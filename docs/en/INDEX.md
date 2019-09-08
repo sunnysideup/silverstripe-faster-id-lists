@@ -4,7 +4,7 @@
 //use statements here ..
 
 $idList = [1,2,3,4,5,6,11,12,13,17];
-Injector::inst()->create(
+$myDataList = Injector::inst()->create(
     FasterIDLists::class,
     MyClass:class
     $idLists
@@ -16,9 +16,11 @@ Injector::inst()->create(
 //use statements here ..
 
 $idList = [1,2,3,4,5,6,11,12,13,17];
-Injector::inst()->create(
+$whereStatement = Injector::inst()->create(
     FasterIDLists::class,
     MyClass:class
     $idLists
 )->shortenIdList();
+
+$myDataList = MyClass::get()->where($whereStatement);
 ```
