@@ -14,7 +14,7 @@
 
  * [Developer Docs](docs/en/INDEX.md)
  * [User Guide](docs/en/userguide.md)
- * [API Docs](http://docs.ssmods.com/sunnysideup/faster-id-lists/classes.xhtml)
+ * [API Docs](http://docs.ssmods.com/sunnysideup/search_simple_smart/classes/Sunnysideup_SearchSimpleSmart_Api_FasterIDLists.xhtml)
 
 
 ## Requirements
