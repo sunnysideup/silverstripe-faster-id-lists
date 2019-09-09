@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\FasterIdLists;
 use SilverStripe\ORM\DataList;
+use SilverStripe\ORM\DB;
 
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
@@ -20,15 +21,17 @@ use SilverStripe\Core\Injector\Injectable;
 
 class FasterIDLists
 {
-    use Extensible;
-    use Injectable;
     use Configurable;
+
+    protected static $table_count_cache = [];
+
+    protected static $table_name_cache = [];
 
     /**
      *
      * @var int
      */
-    private static $acceptable_max_number_of_select_statements = 50;
+    private static $acceptable_max_number_of_select_statements = 200;
 
     /**
      *
@@ -53,13 +56,6 @@ class FasterIDLists
      * @var bool
      */
     protected $isNumber = true;
-
-    /**
-     *
-     * @var string
-     */
-    protected $tableName = '';
-
 
     /**
      *
@@ -99,7 +95,7 @@ class FasterIDLists
 
     public function setTableName(string $tableName) : FasterIDLists
     {
-        $this->tableName = $tableName;
+        self::$table_name_cache[$this->className] = $tableName;
 
         return $this;
     }
@@ -186,12 +182,9 @@ class FasterIDLists
     {
         $className = $this->className;
         $countOfList = count($this->idList);
-        $tableCount = $className::get()->count();
-        if($countOfList === $tableCount) {
-            return $className::get();
-        }
         //only run exclude if there is clear win
-        if($countOfList > (($tableCount / 2) + ($this->Config()->acceptable_max_number_of_select_statements / 2))) {
+        $tableCount = $this->getTableCount();
+        if($countOfList > ($tableCount - $this->Config()->acceptable_max_number_of_select_statements)) {
             $fullList = $className::get()->column($this->field);
 
             return array_diff($fullList, $this->idList);
@@ -205,11 +198,20 @@ class FasterIDLists
      */
     protected function getTableName() : string
     {
-        if(! $this->tableName) {
-            $this->tableName = Config::inst()->get($this->className, 'table_name');
+        if(! isset(self::$table_name_cache[$this->className])) {
+            self::$table_name_cache[$this->className] = Config::inst()->get($this->className, 'table_name');
+        }
+        return self::$table_name_cache[$this->className];
+    }
+
+    protected function getTableCount() : int
+    {
+        $tableName = $this->getTableName();
+        if(! isset(self::$table_count_cache[$tableName])) {
+            self::$table_count_cache[$tableName] = DB::query('SELECT COUNT(ID) FROM '.$this->getTableName())->value();
         }
 
-        return $this->tableName;
+        return self::$table_count_cache[$tableName];
     }
 
     /**
