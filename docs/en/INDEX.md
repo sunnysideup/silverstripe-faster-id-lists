@@ -1,7 +1,8 @@
 # Usage
 
 ```php
-//use statements here ..
+use SilverStripe\Core\Injector\Injector;
+use Sunnysideup\FasterIdLists\FasterIDLists;
 
 $idList = [1,2,3,4,5,6,11,12,13,17];
 $myDataList = Injector::inst()->create(
@@ -13,7 +14,8 @@ $myDataList = Injector::inst()->create(
 //or
 
 ```php
-//use statements here ..
+use SilverStripe\Core\Injector\Injector;
+use Sunnysideup\FasterIdLists\FasterIDLists;
 
 $idList = [1,2,3,4,5,6,11,12,13,17];
 $whereStatement = Injector::inst()->create(
