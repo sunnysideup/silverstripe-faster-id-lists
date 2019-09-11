@@ -31,13 +31,13 @@ class FasterIDLists
      *
      * @var int
      */
-    private static $acceptable_max_number_of_select_statements = 20;
+    private static $acceptable_max_number_of_select_statements = 1000;
 
     /**
      *
      * @var bool
      */
-    private static $include_exclude_option = false;
+    private static $include_exclude_option = true;
 
     /**
      *
@@ -140,15 +140,13 @@ class FasterIDLists
 
                 //if it is long, then see if exclude is a better solution ...
                 if($this->Config()->include_exclude_option) {
-                    if($rangesCount > $this->Config()->acceptable_max_number_of_select_statements) {
-                        $excludeList = $this->excludeList();
-                        if($excludeList) {
-                            $excludeRanges = $this->findRanges($excludeList);
-                            if(count($excludeRanges) < $rangesCount) {
-                                $ranges = $excludeRanges;
-                                $glue = 'AND';
-                                $operator = 'NOT';
-                            }
+                    $excludeList = $this->excludeList();
+                    if($excludeList) {
+                        $excludeRanges = $this->findRanges($excludeList);
+                        if(count($excludeRanges) < $rangesCount) {
+                            $ranges = $excludeRanges;
+                            $glue = 'AND';
+                            $operator = 'NOT';
                         }
                     }
                 }
@@ -166,7 +164,7 @@ class FasterIDLists
                 }
             } else {
                 //if it is long, then see if exclude is a better solution ...
-                if($countMyIDList > $this->Config()->acceptable_max_number_of_select_statements) {
+                if($this->Config()->include_exclude_option) {
                     $excludeList = $this->excludeList();
                     if($excludeList) {
                         if(count($excludeList) < $countMyIDList) {
@@ -193,7 +191,7 @@ class FasterIDLists
         //only run exclude if there is clear win
         $tableCount = $this->getTableCount();
         //there is more items in the list then
-        if($countOfList > $tableCount / 2) {
+        if($countOfList > ($tableCount / 2)) {
             $fullList = $className::get()->column($this->field);
 
             return array_diff($fullList, $this->idList);
