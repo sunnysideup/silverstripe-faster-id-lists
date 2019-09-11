@@ -31,7 +31,13 @@ class FasterIDLists
      *
      * @var int
      */
-    private static $acceptable_max_number_of_select_statements = 200;
+    private static $acceptable_max_number_of_select_statements = 20;
+
+    /**
+     *
+     * @var bool
+     */
+    private static $include_exclude_option = false;
 
     /**
      *
@@ -133,14 +139,16 @@ class FasterIDLists
                 $rangesCount = count($ranges);
 
                 //if it is long, then see if exclude is a better solution ...
-                if($rangesCount > $this->Config()->acceptable_max_number_of_select_statements) {
-                    $excludeList = $this->excludeList();
-                    if($excludeList) {
-                        $newRanges = $this->findRanges($excludeList);
-                        if(count($newRanges) < $rangesCount) {
-                            $ranges = $newRanges;
-                            $glue = 'AND';
-                            $operator = 'NOT';
+                if($this->Config()->include_exclude_option) {
+                    if($rangesCount > $this->Config()->acceptable_max_number_of_select_statements) {
+                        $excludeList = $this->excludeList();
+                        if($excludeList) {
+                            $excludeRanges = $this->findRanges($excludeList);
+                            if(count($excludeRanges) < $rangesCount) {
+                                $ranges = $newRanges;
+                                $glue = 'AND';
+                                $operator = 'NOT';
+                            }
                         }
                     }
                 }
@@ -184,7 +192,8 @@ class FasterIDLists
         $countOfList = count($this->idList);
         //only run exclude if there is clear win
         $tableCount = $this->getTableCount();
-        if($countOfList > ($tableCount - $this->Config()->acceptable_max_number_of_select_statements)) {
+        //there is more items in the list then
+        if($countOfList > $tableCount / 2) {
             $fullList = $className::get()->column($this->field);
 
             return array_diff($fullList, $this->idList);
@@ -208,7 +217,11 @@ class FasterIDLists
     {
         $tableName = $this->getTableName();
         if(! isset(self::$table_count_cache[$tableName])) {
-            self::$table_count_cache[$tableName] = DB::query('SELECT COUNT(ID) FROM '.$this->getTableName())->value();
+            self::$table_count_cache[$tableName] = DB::query('
+                SELECT COUNT(*)
+                FROM "'.$this->getTableName().'"
+                WHERE "'.$this->getTableName().'"."ID" IS NOT NULL'
+            )->value();
         }
 
         return self::$table_count_cache[$tableName];
