@@ -145,7 +145,7 @@ class FasterIDLists
                         if($excludeList) {
                             $excludeRanges = $this->findRanges($excludeList);
                             if(count($excludeRanges) < $rangesCount) {
-                                $ranges = $newRanges;
+                                $ranges = $excludeRanges;
                                 $glue = 'AND';
                                 $operator = 'NOT';
                             }
